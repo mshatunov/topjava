@@ -7,7 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.TimeUtil.*;
 
@@ -26,17 +30,12 @@ public class UserMealsUtil {
     }
 
     public static List<UserMealWithExceed> getFilteredWithExceeded(List<UserMeal> mealList, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        List<UserMealWithExceed> meals = new ArrayList();
-        Map<LocalDate, Integer> caloriesMap = getCalories(mealList);
-
-        for (UserMeal meal : mealList) {
-            if (isBetween(toLocalTime(meal.getDateTime()), startTime, endTime)) {
-                meals.add(new UserMealWithExceed(meal,
-                        caloriesMap.get(toLocalDate(meal.getDateTime())).intValue() > caloriesPerDay));
-            }
-        }
-
-        return meals;
+        return mealList
+                .stream()
+                .filter(meal -> isBetween(toLocalTime(meal.getDateTime()), startTime, endTime))
+                .map(meal -> new UserMealWithExceed(meal,
+                        getCalories(mealList).get(toLocalDate(meal.getDateTime())).intValue() > caloriesPerDay))
+                .collect(Collectors.toList());
     }
 
     public static Map<LocalDate, Integer> getCalories(List<UserMeal> mealList) {
