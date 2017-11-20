@@ -34,21 +34,14 @@ public class UserMealsUtil {
                 .stream()
                 .filter(meal -> isBetween(toLocalTime(meal.getDateTime()), startTime, endTime))
                 .map(meal -> new UserMealWithExceed(meal,
-                        getCalories(mealList).get(toLocalDate(meal.getDateTime())).intValue() > caloriesPerDay))
+                        getCalories(mealList).get(toLocalDate(meal.getDateTime())) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
 
     public static Map<LocalDate, Integer> getCalories(List<UserMeal> mealList) {
-        Map<LocalDate, Integer> caloriesMap = new HashMap<>();
-        Integer cal;
-
-        for (UserMeal meal : mealList) {
-            cal = caloriesMap.containsKey(toLocalDate(meal.getDateTime())) ?
-                    caloriesMap.get(toLocalDate(meal.getDateTime())) + meal.getCalories() : meal.getCalories();
-            caloriesMap.put(toLocalDate(meal.getDateTime()), cal);
-        }
-
-        return caloriesMap;
+        return mealList
+                .stream()
+                .collect(Collectors.groupingBy(m -> m.getDateTime().toLocalDate(), Collectors.summingInt(UserMeal::getCalories)));
     }
 
 }
