@@ -1,21 +1,21 @@
 package ru.javawebinar.topjava.repository.mock;
 
-import ru.javawebinar.topjava.AuthorizedUser;
+import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+@Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
     private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
-
-    {
-        MealsUtil.MEALS.forEach(this::save);
-    }
 
     @Override
     public Meal save(Meal meal) {
@@ -30,21 +30,28 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     public void delete(int id, int userId) {
         if (repository.get(id).getUserId().equals(userId)) {
             repository.remove(id);
+        } else {
+            throw new NotFoundException("This meal not belongs to customer");
         }
     }
 
     @Override
     public Meal get(int id, int userId) {
         Meal meal = repository.get(id);
-        return meal.getUserId().equals(userId) ? meal : null;
+        if (meal.getUserId().equals(userId)) {
+            return meal;
+        } else {
+            throw new NotFoundException("This meal not belongs to customer");
+        }
     }
 
     @Override
-    public Collection<Meal> getAll() {
-        List<Meal> meals = Arrays.asList((Meal) repository.values());
-        meals.sort(Comparator.comparing(Meal::getDateTime));
-        return meals;
-
+    public List<Meal> getAll(int userId) {
+        return repository.values()
+                .stream()
+                .filter(meal -> meal.getUserId().equals(userId))
+                .sorted(Comparator.comparing(Meal::getDateTime))
+                .collect(Collectors.toList());
     }
 }
 
