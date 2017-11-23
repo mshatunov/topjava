@@ -1,6 +1,6 @@
 package ru.javawebinar.topjava.model;
 
-public class NamedEntity extends BaseEntity {
+public class NamedEntity extends AbstractBaseEntity {
 
     protected String name;
 
