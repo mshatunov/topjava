@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava;
 
 import ru.javawebinar.topjava.matcher.BeanMatcher;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 
@@ -26,4 +27,13 @@ public class UserTestData {
 //                            && Objects.equals(expected.getRoles(), actual.getRoles())
                     )
     );
+
+    public static final BeanMatcher<Meal> MATCHER_MEAL = new BeanMatcher<>(
+            (expected, actual) -> expected == actual ||
+                    (Objects.equals(expected.getCalories(), actual.getCalories())
+                            && Objects.equals(expected.getDateTime(), actual.getDateTime())
+                            && Objects.equals(expected.getDescription(), actual.getDescription())
+                    )
+    );
+
 }
